@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState, useReducer } from 'react';
 import io from "socket.io-client";
 import { Grid, Link, IconButton, Button, CircularProgress } from '@material-ui/core';
 import { CloseOutlined } from '@material-ui/icons';
@@ -24,35 +23,36 @@ const App = () => {
 
   const [generatingPdfs, setGeneratingPdfs] = useState([]);
   const [pdfs, setPdfs] = useState([]);
+  // const [{ generatingPdfs, pdfs }, dispatch] = useReducer({ generatingPdfs: [], pdfs: [] })
+
   socket = io('http://localhost:8080');
 
   useEffect(() => {
     socket.on('connect', () => {
       console.log('connected');
     });
-
-    axios.get('/data/pdf');
+    socket.emit('GET_PDFS', {});
   }, []);
 
-  useEffect(() => {
-    socket.on('PDFS_GENERATED', (newPdfs) => {
-      setPdfs([...pdfs, ...newPdfs]);
-      const generatingPdfs2 = generatingPdfs.filter(x => !newPdfs.find(newPdf => newPdf.id === x));
-      setGeneratingPdfs(generatingPdfs2);
-    });
-  }, [pdfs, generatingPdfs]);
+  socket.on('PDFS_GENERATING', (newPdfs) => {
+    setGeneratingPdfs(p => [...p, ...newPdfs]);
+  });
+
+  socket.on('PDFS_GENERATED', (newPdfs) => {
+    setPdfs(p => [...p, ...newPdfs]);
+    setGeneratingPdfs(p => p.filter(x => !newPdfs.find(newPdf => newPdf.id === x)));
+  });
+
+  socket.on('PDF_DELETED', ({ id }) => {
+    setPdfs(p => p.filter(x => x.id !== id));
+  });
 
   const generatePdf = (e) => {
-    axios.post('/data/pdf').then(({ data: { id } }) => {
-      setGeneratingPdfs([...generatingPdfs, id]);
-    });
+    socket.emit('CREATE_PDF', {});
   };
 
   const deletePdf = (e, id) => {
-    axios.delete(`/data/pdf/${id}`).then(() => {
-      const pdfs2 = pdfs.filter(x => x.id !== id);
-      setPdfs(pdfs2);
-    });
+    socket.emit('DELETE_PDF', { id });
   };
 
   return (
