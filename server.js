@@ -12,11 +12,6 @@ server.listen(8080);
 app.use(cors());
 
 const initSocketEvents = (socket) => {
-  socket.on('SOME_MESSAGE', ({ someData }) => { });
-
-  socket.emit('SOME_MESSAGE', { someData: {} })
-
-
   socket.on('GET_PDFS', () => {
     const fullPath = path.join(publicPath, 'pdf');
     fs.readdir(fullPath, (err, files) => {
