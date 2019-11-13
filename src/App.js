@@ -67,9 +67,7 @@ const App = () => {
       <Grid item xs={6} className={clsx(c.panel, c.panel_left)}>
         {
           pdfs.map(({ id, path }) => (
-            <div
-              key={id}
-            >
+            <div key={id}>
               <Link
                 href={path}
                 onClick={e => { e.target.download = `test-${id}.pdf`; }}
