@@ -64,7 +64,7 @@ const App = () => {
 
   return (
     <Grid container className={c.root}>
-      <Grid item xs={6} className={clsx(c.panel, c.panel_left)} style={{ background: '#DCDBDC' }}>
+      <Grid item xs={6} className={clsx(c.panel, c.panel_left)}>
         {
           pdfs.map(({ id, path }) => (
             <div
