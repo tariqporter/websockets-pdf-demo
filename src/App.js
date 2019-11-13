@@ -1,10 +1,8 @@
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import io from "socket.io-client";
 import { Grid, Link, IconButton, Button, CircularProgress } from '@material-ui/core';
 import { CloseOutlined } from '@material-ui/icons';
 import { createUseStyles } from 'react-jss';
-
-let socket;
 
 const useStyles = createUseStyles({
   root: {
@@ -18,42 +16,44 @@ const useStyles = createUseStyles({
   }
 });
 
+const initialState = { generatingPdfs: [], pdfs: [] };
+
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'PDFS_GENERATING':
+      return {
+        ...state,
+        generatingPdfs: [...state.generatingPdfs, ...action.generatingPdfs]
+      };
+    case 'PDFS_GENERATED':
+      return {
+        ...state,
+        pdfs: [...state.pdfs, ...action.pdfs],
+        generatingPdfs: state.generatingPdfs.filter(x => !action.pdfs.find(newPdf => newPdf.id === x))
+      };
+    case 'PDF_DELETED':
+      return {
+        ...state,
+        pdfs: state.pdfs.filter(x => x.id !== action.id)
+      }
+    default:
+      return state;
+  }
+};
+
+let socket;
+
 const App = () => {
   const c = useStyles();
-
-  const [generatingPdfs, setGeneratingPdfs] = useState([]);
-  const [pdfs, setPdfs] = useState([]);
-  // const [{ generatingPdfs, pdfs }, dispatch] = useReducer({ generatingPdfs: [], pdfs: [] })
+  const [{ generatingPdfs, pdfs }, dispatch] = useReducer(reducer, initialState);
 
   socket = io('http://localhost:8080');
 
   useEffect(() => {
-    socket.on('connect', () => {
-      console.log('connected');
-    });
-    socket.emit('GET_PDFS', {});
+    socket.emit('GET_PDFS');
   }, []);
 
-  socket.on('PDFS_GENERATING', (newPdfs) => {
-    setGeneratingPdfs(p => [...p, ...newPdfs]);
-  });
-
-  socket.on('PDFS_GENERATED', (newPdfs) => {
-    setPdfs(p => [...p, ...newPdfs]);
-    setGeneratingPdfs(p => p.filter(x => !newPdfs.find(newPdf => newPdf.id === x)));
-  });
-
-  socket.on('PDF_DELETED', ({ id }) => {
-    setPdfs(p => p.filter(x => x.id !== id));
-  });
-
-  const generatePdf = (e) => {
-    socket.emit('CREATE_PDF', {});
-  };
-
-  const deletePdf = (e, id) => {
-    socket.emit('DELETE_PDF', { id });
-  };
+  socket.on('DATA', action => dispatch(action));
 
   return (
     <Grid container className={c.root}>
@@ -71,7 +71,7 @@ const App = () => {
               >
                 {id}
               </Link>
-              <IconButton onClick={e => deletePdf(e, id)}>
+              <IconButton onClick={e => socket.emit('DELETE_PDF', { id })}>
                 <CloseOutlined />
               </IconButton>
             </div>
@@ -85,7 +85,7 @@ const App = () => {
         }
       </Grid>
       <Grid item xs={6} className={c.panel}>
-        <Button variant="contained" color="primary" onClick={generatePdf}>Generate PDF</Button>
+        <Button variant="contained" color="primary" onClick={e => socket.emit('CREATE_PDF', {})}>Generate PDF</Button>
       </Grid>
     </Grid>
   );

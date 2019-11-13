@@ -22,7 +22,7 @@ const initSocketEvents = (socket) => {
           path: `/pdf/${filePath}`
         }
       });
-      socket.emit('PDFS_GENERATED', files2);
+      socket.emit('DATA', { type: 'PDFS_GENERATED', pdfs: files2 });
     });
   });
 
@@ -30,7 +30,8 @@ const initSocketEvents = (socket) => {
     let filePath = `/pdf/${id}.pdf`;
     let fullPath = path.join(publicPath, filePath);
     fs.unlink(fullPath, () => {
-      socket.emit('PDF_DELETED', { id });
+      socket.emit('DATA', { type: 'PDF_DELETED', id });
+      // socket.emit('PDF_DELETED', { id });
     });
   });
 
@@ -43,9 +44,11 @@ const initSocketEvents = (socket) => {
       filePath = `/pdf/${id}-${i}.pdf`;
       fullPath = path.join(publicPath, filePath);
     }
-    socket.emit('PDFS_GENERATING', [id]);
+    // socket.emit('PDFS_GENERATING', [id]);
+    socket.emit('DATA', { type: 'PDFS_GENERATING', generatingPdfs: [id] });
     createPdf(fullPath).then(() => {
-      socket.emit('PDFS_GENERATED', [{ id, path: filePath }]);
+      // socket.emit('PDFS_GENERATED', [{ id, path: filePath }]);
+      socket.emit('DATA', { type: 'PDFS_GENERATED', pdfs: [{ id, path: filePath }] });
     });
   });
 };
