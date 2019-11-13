@@ -3,11 +3,20 @@ import * as io from "socket.io-client";
 import { Grid, Link, IconButton, Button, CircularProgress } from '@material-ui/core';
 import { CloseOutlined } from '@material-ui/icons';
 import { createUseStyles } from 'react-jss';
+import clsx from 'clsx';
 
 const useStyles = createUseStyles({
   root: {
     minHeight: '100vh',
     padding: 100
+  },
+  panel_left: {
+    borderRadius: [4, 0, 0, 4],
+    background: '#DCDBDC'
+  },
+  panel_right: {
+    borderRadius: [0, 4, 4, 0],
+    background: '#373737'
   },
   panel: {
     display: 'flex',
@@ -55,7 +64,7 @@ const App = () => {
 
   return (
     <Grid container className={c.root}>
-      <Grid item xs={6} className={c.panel} style={{ background: '#DCDBDC' }}>
+      <Grid item xs={6} className={clsx(c.panel, c.panel_left)} style={{ background: '#DCDBDC' }}>
         {
           pdfs.map(({ id, path }) => (
             <div
@@ -82,7 +91,7 @@ const App = () => {
           ))
         }
       </Grid>
-      <Grid item xs={6} className={c.panel} style={{ background: '#373737' }}>
+      <Grid item xs={6} className={clsx(c.panel, c.panel_right)}>
         <Button variant="contained" onClick={e => socket.emit('CREATE_PDF', {})}>Generate PDF</Button>
       </Grid>
     </Grid>
