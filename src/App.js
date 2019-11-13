@@ -10,6 +10,12 @@ const useStyles = createUseStyles({
     minHeight: '100vh',
     padding: 100
   },
+  panel: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   panel_left: {
     borderRadius: [4, 0, 0, 4],
     background: '#DCDBDC'
@@ -17,12 +23,6 @@ const useStyles = createUseStyles({
   panel_right: {
     borderRadius: [0, 4, 4, 0],
     background: '#373737'
-  },
-  panel: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center'
   }
 });
 
