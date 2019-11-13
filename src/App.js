@@ -7,6 +7,7 @@ import { createUseStyles } from 'react-jss';
 const useStyles = createUseStyles({
   root: {
     minHeight: '100vh',
+    padding: 100
   },
   panel: {
     display: 'flex',
@@ -54,7 +55,7 @@ const App = () => {
 
   return (
     <Grid container className={c.root}>
-      <Grid item xs={6} className={c.panel}>
+      <Grid item xs={6} className={c.panel} style={{ background: '#dcd0c0' }}>
         {
           pdfs.map(({ id, path }) => (
             <div
@@ -77,12 +78,12 @@ const App = () => {
         }
         {
           generatingPdfs.map((id) => (
-            <CircularProgress key={id} />
+            <CircularProgress key={id} style={{ marginBottom: 5 }} />
           ))
         }
       </Grid>
-      <Grid item xs={6} className={c.panel}>
-        <Button variant="contained" color="primary" onClick={e => socket.emit('CREATE_PDF', {})}>Generate PDF</Button>
+      <Grid item xs={6} className={c.panel} style={{ background: '#373737' }}>
+        <Button variant="contained" onClick={e => socket.emit('CREATE_PDF', {})}>Generate PDF</Button>
       </Grid>
     </Grid>
   );
