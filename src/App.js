@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import io from "socket.io-client";
+import * as io from "socket.io-client";
 import { Grid, Link, IconButton, Button, CircularProgress } from '@material-ui/core';
 import { CloseOutlined } from '@material-ui/icons';
 import { createUseStyles } from 'react-jss';
@@ -41,19 +41,16 @@ const reducer = (state, action) => {
   }
 };
 
-let socket;
+const socket = io('http://localhost:8080');
 
 const App = () => {
   const c = useStyles();
   const [{ generatingPdfs, pdfs }, dispatch] = useReducer(reducer, initialState);
 
-  socket = io('http://localhost:8080');
-
   useEffect(() => {
+    socket.on('DATA', dispatch);
     socket.emit('GET_PDFS');
   }, []);
-
-  socket.on('DATA', action => dispatch(action));
 
   return (
     <Grid container className={c.root}>
